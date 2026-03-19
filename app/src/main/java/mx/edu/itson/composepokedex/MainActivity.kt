@@ -18,12 +18,17 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.*
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -33,7 +38,7 @@ import mx.edu.itson.composepokedex.ui.theme.ComposepokedexTheme
 
 class MainActivity : ComponentActivity() {
     val pokemon = Pokemon("Pikachu", 25, "Electrico", "Es una rata electrica",
-        0.4f, 6f, true, "Estatica", R.drawable.pikachu)
+        0.4f, 6f, true, "Estática", R.drawable.pikachu)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,23 +79,49 @@ fun PokemonHeader(name:String, number:Int, fav: Boolean){
 
 @Composable
 fun PokemonCard(name:String, weight: Float, height: Float, description: String, ability: String, image: Int){
-    Card{
-        Image(painter = painterResource(image), contentDescription=name)
+    var showInfo by remember { mutableStateOf(false) }
+    Card(
+        modifier = Modifier
+            .padding(16.dp)
+            .clickable {
+            showInfo = !showInfo
+        }
+    ){
+        Column{
+            Image(painter = painterResource(image), contentDescription=name)
+            if (showInfo){
+                Text(text="Descripción: $description")
+                Text(text="Altura: $height m")
+                Text(text="Peso: $weight kg")
+                Text(text="Habilidades: $ability")
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PokemonHeaderPreview(){
+    ComposepokedexTheme() {
+        PokemonHeader("Pikachu", 25, true)
     }
 }
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+fun Greeting(pokemon: Pokemon, modifier: Modifier = Modifier) {
+    Column{
+        PokemonHeader(pokemon.name, pokemon.number, pokemon.fav)
+        PokemonCard(pokemon.name, pokemon.weight, pokemon.height, pokemon.description, pokemon.ability, pokemon.image)
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     ComposepokedexTheme {
-        Greeting("Android")
+        Greeting(Pokemon("Pikachu", 25,
+            "Electrico", "Es una rata electrica",
+            0.4f, 6f,
+            true, "Estatica", R.drawable.pikachu))
     }
 }
